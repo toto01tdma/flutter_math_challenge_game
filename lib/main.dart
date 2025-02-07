@@ -8,12 +8,70 @@ class MathChallengeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MathGamePage(),
+      home: LevelSelectionPage(),
+    );
+  }
+}
+
+class LevelSelectionPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Select Difficulty Level")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Choose a difficulty level:", style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MathGamePage(timeLimit: 30),
+                  ),
+                );
+              },
+              child: Text("Easy (30 seconds)", style: TextStyle(fontSize: 18)),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MathGamePage(timeLimit: 20),
+                  ),
+                );
+              },
+              child:
+                  Text("Medium (20 seconds)", style: TextStyle(fontSize: 18)),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MathGamePage(timeLimit: 10),
+                  ),
+                );
+              },
+              child: Text("Hard (10 seconds)", style: TextStyle(fontSize: 18)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class MathGamePage extends StatefulWidget {
+  final int timeLimit;
+
+  MathGamePage({required this.timeLimit});
+
   @override
   _MathGamePageState createState() => _MathGamePageState();
 }
@@ -25,12 +83,13 @@ class _MathGamePageState extends State<MathGamePage> {
   String question = "";
   List<int> options = [];
   int correctAnswer = 0;
-  int timeLeft = 10; // เริ่มต้นที่ 10 วินาที
+  int timeLeft = 0;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    timeLeft = widget.timeLimit; // กำหนดเวลาตามระดับที่เลือก
     generateQuestion();
     startTimer();
   }
@@ -56,7 +115,7 @@ class _MathGamePageState extends State<MathGamePage> {
     options[random.nextInt(3)] = correctAnswer; // ใส่คำตอบที่ถูกต้อง
     setState(() {
       question = "$num1 + $num2 = ?";
-      timeLeft = 10; // รีเซ็ตเวลาเมื่อเริ่มคำถามใหม่
+      timeLeft = widget.timeLimit; // รีเซ็ตเวลาเมื่อเริ่มคำถามใหม่
     });
   }
 
@@ -79,22 +138,13 @@ class _MathGamePageState extends State<MathGamePage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              resetGame();
+              Navigator.of(context).pop(); // ย้อนกลับไปยังหน้าเลือกระดับ
             },
-            child: Text("Play Again"),
+            child: Text("Back to Level Selection"),
           ),
         ],
       ),
     );
-  }
-
-  void resetGame() {
-    setState(() {
-      score = 0;
-      timeLeft = 10;
-      generateQuestion();
-      startTimer();
-    });
   }
 
   @override
